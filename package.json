@@ -8,9 +8,15 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "start": "node server/index.js",
-    "server": "node server/index.js"
+    "server": "node server/index.js",
+    "postinstall": "cp node_modules/stockfish.js/stockfish.js public/stockfish.js 2>/dev/null || true"
   },
-  "keywords": ["chess", "game", "stockfish", "react"],
+  "keywords": [
+    "chess",
+    "game",
+    "stockfish",
+    "react"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -19,7 +25,8 @@
     "react": "^18.2.0",
     "react-chessboard": "^4.3.1",
     "react-dom": "^18.2.0",
-    "stockfish": "^16.0.0"
+    "stockfish": "^16.0.0",
+    "stockfish.js": "^10.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

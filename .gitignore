@@ -24,3 +24,6 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Stockfish engine (copied during build)
+public/stockfish.js
