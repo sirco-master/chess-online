@@ -1,0 +1,38 @@
+{
+  "name": "chess-online",
+  "version": "1.0.0",
+  "description": "A complete web-based chess game with bot AI and 2-player mode",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "server": "node server/index.js",
+    "postinstall": "cp node_modules/stockfish.js/stockfish.js public/stockfish.js || echo 'Warning: Failed to copy stockfish.js'"
+  },
+  "keywords": [
+    "chess",
+    "game",
+    "stockfish",
+    "react"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chess.js": "^1.0.0-beta.8",
+    "express": "^4.18.2",
+    "react": "^18.2.0",
+    "react-chessboard": "^4.3.1",
+    "react-dom": "^18.2.0",
+    "stockfish": "^16.0.0",
+    "stockfish.js": "^10.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8"
+  }
+}

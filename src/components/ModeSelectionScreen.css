@@ -1,0 +1,87 @@
+.mode-selection-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #8b6914 0%, #5d4e37 100%);
+}
+
+.mode-container {
+  width: 100%;
+  max-width: 900px;
+  background: rgba(101, 67, 33, 0.8);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 4px solid #d4a574;
+}
+
+.mode-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: #ffd700;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+}
+
+.difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.difficulty-button {
+  background: linear-gradient(135deg, #8b7355 0%, #6d5d4b 100%);
+  color: #f5deb3;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #d4a574;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.difficulty-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.difficulty-elo {
+  font-size: 1rem;
+  color: #ffd700;
+}
+
+.two-player-button {
+  background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+  color: #3e2723;
+  padding: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-radius: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+  border: 3px solid #8b7355;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.back-button {
+  background: rgba(139, 115, 85, 0.6);
+  color: #f5deb3;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  width: 100%;
+  border: 2px solid #d4a574;
+}
+
+@media (max-width: 768px) {
+  .difficulty-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .mode-title {
+    font-size: 2rem;
+  }
+}
