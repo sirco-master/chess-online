@@ -76,14 +76,26 @@
   font-family: 'Courier New', monospace;
 }
 
+.board-and-chat-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
 .board-wrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
   background: #654321;
   padding: 10px;
   border-radius: 10px;
   box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.5);
+  flex: 1;
+}
+
+.chat-wrapper {
+  flex-shrink: 0;
+  min-width: 300px;
 }
 
 .game-controls {
@@ -408,5 +420,13 @@
 
   .accuracy-value {
     font-size: 2rem;
+  }
+
+  .board-and-chat-wrapper {
+    flex-direction: column;
+  }
+
+  .chat-wrapper {
+    min-width: 100%;
   }
 }

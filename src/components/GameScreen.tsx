@@ -6,6 +6,8 @@ import StockfishEngine, { difficultyConfigs } from '../utils/stockfish'
 import { addGameLog, getSetting, canUseAnalysis, markAnalysisUsed, getAnalysisCooldownRemaining, formatCooldownTime } from '../utils/gameStorage'
 import { analyzeGame, getMoveQualityDisplay } from '../utils/analysis'
 import { GameAnalysis, TIME_CONTROLS } from '../types'
+import { useOnlineGame } from '../utils/useOnlineGame'
+import ChatComponent from './ChatComponent'
 import './GameScreen.css'
 
 interface GameScreenProps {
@@ -38,6 +40,39 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const moveHistory = useRef<string[]>([])
+  const [chatCollapsed, setChatCollapsed] = useState(false)
+
+  // Online game state
+  const isOnlineMode = config.mode === 'online-public' || config.mode === 'online-private'
+  const onlineGame = isOnlineMode && config.gameId ? useOnlineGame({
+    gameId: config.gameId,
+    playerColor: config.playerColor,
+    onOpponentMove: (move, fen, timeLeft) => {
+      const gameCopy = new Chess(fen)
+      moveHistory.current.push(move)
+      playMoveSound()
+      setGame(gameCopy)
+      setWhiteTime(timeLeft.white)
+      setBlackTime(timeLeft.black)
+      updateGameStatus(gameCopy)
+    },
+    onOpponentResigned: () => {
+      setGameStatus('Opponent resigned. You win!')
+      setGameResult({
+        result: 'win',
+        message: 'Opponent resigned. You win!'
+      })
+      setShowGameOverModal(true)
+      logGameResult('win')
+    },
+    onOpponentDisconnected: () => {
+      setGameStatus('Opponent disconnected. Waiting to reconnect...')
+    },
+    onGameOver: (result) => {
+      setGameResult(result)
+      setShowGameOverModal(true)
+    }
+  }) : null
 
   // Load settings
   useEffect(() => {
@@ -226,9 +261,9 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
     if (!clickToMove || isThinking || game.isGameOver()) return
     
     // For 2-player mode, allow both sides
-    // For single-player, only allow player's color
+    // For single-player and online, only allow player's color
     const isSinglePlayer = config.mode === 'single-player' || config.mode === 'personality-bot'
-    if (isSinglePlayer) {
+    if (isSinglePlayer || isOnlineMode) {
       const playerTurn = config.playerColor === 'white' ? 'w' : 'b'
       if (game.turn() !== playerTurn) return
     }
@@ -263,7 +298,14 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
             if (!isClockRunning) setIsClockRunning(true)
           }
 
-          if (isSinglePlayer && !gameCopy.isGameOver()) {
+          // Handle different game modes
+          if (isOnlineMode && onlineGame) {
+            // Send move to opponent via WebSocket
+            onlineGame.sendMove(move.san, gameCopy.fen(), {
+              white: whiteTime,
+              black: blackTime
+            })
+          } else if (isSinglePlayer && !gameCopy.isGameOver()) {
             setTimeout(() => makeBotMove(gameCopy), 500)
           }
         } else {
@@ -296,7 +338,13 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
     if (isThinking) return false
     
     const isSinglePlayer = config.mode === 'single-player' || config.mode === 'personality-bot'
+    
+    // Check if it's player's turn
     if (isSinglePlayer) {
+      const playerTurn = config.playerColor === 'white' ? 'w' : 'b'
+      if (game.turn() !== playerTurn) return false
+    } else if (isOnlineMode) {
+      // For online mode, check if it's player's turn
       const playerTurn = config.playerColor === 'white' ? 'w' : 'b'
       if (game.turn() !== playerTurn) return false
     }
@@ -321,7 +369,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
 
         // Add time increment
         if (config.timeControl !== 'normal') {
-          const increment = config.timeControl === 'rapid' ? 5 : config.timeControl === 'blitz' ? 2 : 1
+          const increment = TIME_CONTROLS[config.timeControl].increment
           if (gameCopy.turn() === 'w') {
             setBlackTime(prev => prev + increment)
           } else {
@@ -330,7 +378,14 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
           if (!isClockRunning) setIsClockRunning(true)
         }
 
-        if (isSinglePlayer && !gameCopy.isGameOver()) {
+        // Handle different game modes
+        if (isOnlineMode && onlineGame) {
+          // Send move to opponent via WebSocket
+          onlineGame.sendMove(move.san, gameCopy.fen(), {
+            white: whiteTime,
+            black: blackTime
+          })
+        } else if (isSinglePlayer && !gameCopy.isGameOver()) {
           setTimeout(() => makeBotMove(gameCopy), 500)
         }
         
@@ -478,7 +533,9 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
   }
 
   const getOpponentName = () => {
-    if (config.personalityBot) {
+    if (isOnlineMode && config.opponentName) {
+      return `${config.opponentAvatar || '👤'} ${config.opponentName}`
+    } else if (config.personalityBot) {
       return `${config.personalityBot.avatar} ${config.personalityBot.name}`
     } else if (config.difficulty) {
       return `${config.difficulty.charAt(0).toUpperCase() + config.difficulty.slice(1)} Bot`
@@ -507,16 +564,29 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
           </div>
         )}
 
-        <div className="board-wrapper">
-          <Chessboard
-            position={game.fen()}
-            onPieceDrop={onDrop}
-            onSquareClick={handleSquareClick}
-            customSquareStyles={customSquareStyles}
+        <div className="board-and-chat-wrapper">
+          <div className="board-wrapper">
+            <Chessboard
+              position={game.fen()}
+              onPieceDrop={onDrop}
+              onSquareClick={handleSquareClick}
+              customSquareStyles={customSquareStyles}
             boardOrientation={config.playerColor === 'black' ? 'black' : 'white'}
             boardWidth={Math.min(600, window.innerWidth - 40)}
           />
         </div>
+
+        {isOnlineMode && onlineGame && (
+          <div className="chat-wrapper">
+            <ChatComponent
+              messages={onlineGame.chatMessages}
+              onSendMessage={onlineGame.sendChatMessage}
+              collapsed={chatCollapsed}
+              onToggle={() => setChatCollapsed(!chatCollapsed)}
+            />
+          </div>
+        )}
+      </div>
 
         <div className="game-controls">
           {(config.mode === 'single-player' || config.mode === 'personality-bot') && (
