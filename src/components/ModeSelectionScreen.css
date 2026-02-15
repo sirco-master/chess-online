@@ -25,6 +25,79 @@
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
 }
 
+/* Mode selection */
+.mode-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.mode-option-button {
+  background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+  color: #3e2723;
+  padding: 40px 20px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  border-radius: 15px;
+  border: 3px solid #8b7355;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s;
+}
+
+.mode-option-button.online {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #5568d3;
+}
+
+.mode-option-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Bot type selection */
+.bot-type-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.bot-type-button {
+  background: linear-gradient(135deg, #8b7355 0%, #6d5d4b 100%);
+  color: #f5deb3;
+  padding: 30px 20px;
+  border-radius: 15px;
+  border: 2px solid #d4a574;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.bot-type-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  border-color: #ffd700;
+}
+
+.bot-type-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.bot-type-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffd700;
+}
+
+.bot-type-desc {
+  font-size: 1rem;
+  color: #f5deb3;
+}
+
+/* Classic difficulty grid */
 .difficulty-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -40,6 +113,13 @@
   border: 2px solid #d4a574;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   text-align: center;
+  transition: all 0.3s;
+}
+
+.difficulty-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  border-color: #ffd700;
 }
 
 .difficulty-name {
@@ -51,6 +131,183 @@
 .difficulty-elo {
   font-size: 1rem;
   color: #ffd700;
+}
+
+/* Personality bot grid */
+.personality-bot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.personality-bot-button {
+  background: linear-gradient(135deg, #8b7355 0%, #6d5d4b 100%);
+  color: #f5deb3;
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid #d4a574;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.personality-bot-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  border-color: #ffd700;
+}
+
+.bot-avatar {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+}
+
+.bot-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #ffd700;
+}
+
+.bot-personality {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #d4a574;
+}
+
+.bot-description {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #f5deb3;
+}
+
+/* Game setup */
+.setup-section {
+  margin-bottom: 30px;
+}
+
+.setup-label {
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.time-control-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.time-control-button {
+  background: rgba(139, 115, 85, 0.6);
+  color: #f5deb3;
+  padding: 20px 10px;
+  border-radius: 10px;
+  border: 2px solid #d4a574;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.time-control-button:hover {
+  background: rgba(139, 115, 85, 0.8);
+  border-color: #ffd700;
+}
+
+.time-control-button.selected {
+  background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+  color: #3e2723;
+  border-color: #ffd700;
+  border-width: 3px;
+}
+
+.tc-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.tc-time {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.color-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.color-button {
+  background: rgba(139, 115, 85, 0.6);
+  color: #f5deb3;
+  padding: 25px;
+  border-radius: 12px;
+  border: 2px solid #d4a574;
+  font-size: 1.3rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s;
+}
+
+.color-button:hover {
+  background: rgba(139, 115, 85, 0.8);
+  border-color: #ffd700;
+}
+
+.color-button.selected {
+  background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+  color: #3e2723;
+  border-color: #ffd700;
+  border-width: 3px;
+}
+
+.color-icon {
+  font-size: 2rem;
+}
+
+.setup-summary {
+  background: rgba(62, 39, 35, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #d4a574;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #f5deb3;
+  font-size: 1.1rem;
+}
+
+.setup-summary p {
+  margin: 8px 0;
+}
+
+.setup-summary strong {
+  color: #ffd700;
+}
+
+.start-game-button {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  padding: 20px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  border-radius: 12px;
+  width: 100%;
+  margin-bottom: 15px;
+  border: 3px solid #2e7d32;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s;
+}
+
+.start-game-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
 .two-player-button {
@@ -74,14 +331,50 @@
   border-radius: 8px;
   width: 100%;
   border: 2px solid #d4a574;
+  transition: all 0.3s;
 }
 
+.back-button:hover {
+  background: rgba(139, 115, 85, 0.8);
+}
+
+/* Mobile responsiveness */
 @media (max-width: 768px) {
+  .mode-container {
+    padding: 25px;
+  }
+
+  .mode-title {
+    font-size: 2rem;
+  }
+
+  .mode-options,
+  .bot-type-options {
+    grid-template-columns: 1fr;
+  }
+
   .difficulty-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
-  
-  .mode-title {
-    font-size: 2rem;
+
+  .personality-bot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .time-control-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mode-option-button {
+    padding: 30px 20px;
+    font-size: 1.4rem;
+  }
+
+  .bot-type-icon {
+    font-size: 2.5rem;
+  }
+
+  .bot-type-name {
+    font-size: 1.3rem;
   }
 }
