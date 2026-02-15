@@ -1,5 +1,5 @@
 // Core game types
-export type Screen = 'home' | 'mode-selection' | 'game' | 'game-log' | 'online-setup' | 'online-lobby' | 'profile' | 'bot-selection' | 'game-mode-selection'
+export type Screen = 'home' | 'welcome' | 'main-menu' | 'mode-selection' | 'game' | 'game-log' | 'online-setup' | 'online-lobby' | 'profile' | 'bot-selection' | 'game-mode-selection' | 'clubs' | 'club-detail' | 'club-management' | 'club-match' | 'friends' | 'friend-requests' | 'dm-list' | 'dm' | 'user-search' | 'other-profile' | 'rztv' | 'chat'
 export type GameMode = 'single-player' | '2-player' | 'online-public' | 'online-private' | 'personality-bot' | 'engine-bot'
 export type Difficulty = 'practice' | 'beginner' | 'easy' | 'intermediate' | 'moderate' | 'tough' | 'hard' | 'insane' | 'extreme' | 'impossible'
 export type PlayMode = 'normal' | 'friendly' // Normal = no hints/takebacks, medals. Friendly = unlimited hints/takebacks, no medals
@@ -491,3 +491,114 @@ export interface GameAnalysis {
 
 // Player avatars
 export const AVATARS = ['👤', '🧑', '👨', '👩', '🧔', '👨‍🦰', '👩‍🦰', '👨‍🦱', '👩‍🦱', '🤴', '👸', '🧙', '🦸', '🥷', '🤠']
+
+// Club types
+export type ClubRole = 'president' | 'senior' | 'member'
+export type ClubVisibility = 'open' | 'invite-only' | 'closed'
+export type ClubPermission = 'kick' | 'rename' | 'change-bio' | 'start-battles' | 'invite' | 'adjust-permissions' | 'change-visibility'
+
+export interface ClubMember {
+  userId: string
+  username: string
+  avatar: string
+  role: ClubRole
+  joinedAt: number
+  permissions: ClubPermission[] // Only for seniors
+  elo: number
+}
+
+export interface Club {
+  id: string
+  name: string
+  bio: string
+  createdAt: number
+  visibility: ClubVisibility
+  trophies: number
+  members: ClubMember[]
+  maxMembers: number // 30
+  president: string // userId
+}
+
+export interface ClubMatch {
+  id: string
+  clubAId: string
+  clubBId: string
+  clubAName: string
+  clubBName: string
+  matchType: '5v5' | '10v10' | '20v20' | '30v30'
+  startedAt: number
+  finishedAt?: number
+  status: 'pending' | 'in-progress' | 'completed'
+  clubAMembers: string[] // userIds
+  clubBMembers: string[] // userIds
+  results: { [key: string]: 'win' | 'loss' | 'draw' | 'pending' } // userId -> result
+  winnerId?: string // clubId
+}
+
+// Friend and DM types
+export type FriendStatus = 'pending' | 'accepted' | 'blocked'
+export type UserStatus = 'online' | 'offline' | 'in-game'
+
+export interface Friend {
+  userId: string
+  username: string
+  avatar: string
+  status: FriendStatus
+  addedAt: number
+  userStatus: UserStatus
+  elo: number
+}
+
+export interface FriendRequest {
+  id: string
+  fromUserId: string
+  fromUsername: string
+  fromAvatar: string
+  toUserId: string
+  sentAt: number
+  status: 'pending' | 'accepted' | 'declined'
+}
+
+export interface DMMessage {
+  id: string
+  fromUserId: string
+  toUserId: string
+  message: string
+  timestamp: number
+  read: boolean
+}
+
+export interface DMConversation {
+  withUserId: string
+  withUsername: string
+  withAvatar: string
+  messages: DMMessage[]
+  lastMessageAt: number
+  unreadCount: number
+}
+
+export interface BlockedUser {
+  userId: string
+  username: string
+  blockedAt: number
+}
+
+// Settings types
+export interface AppSettings {
+  sfxEnabled: boolean
+  clickToMove: boolean
+  showMoveGrid: boolean
+  dmEnabled: boolean // Toggle for receiving DMs from new senders
+}
+
+// Notification types
+export interface Notification {
+  id: string
+  type: 'friend-request' | 'club-invite' | 'club-match' | 'dm'
+  fromUserId: string
+  fromUsername: string
+  message: string
+  timestamp: number
+  read: boolean
+  data?: any // Additional data specific to notification type
+}
