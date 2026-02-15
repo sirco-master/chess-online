@@ -29,6 +29,17 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
+.play-mode-indicator {
+  font-size: 0.95rem;
+  color: #f5deb3;
+  margin-bottom: 8px;
+  padding: 5px 15px;
+  background: rgba(62, 39, 35, 0.6);
+  border-radius: 15px;
+  display: inline-block;
+  border: 1px solid #d4a574;
+}
+
 .game-status {
   font-size: 1.3rem;
   color: #f5deb3;
@@ -255,6 +266,23 @@
   font-size: 1.2rem;
   color: #f5deb3;
   margin-bottom: 30px;
+}
+
+.medal-earned {
+  font-size: 1.3rem;
+  color: #ffd700;
+  font-weight: bold;
+  background: rgba(255, 215, 0, 0.2);
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 2px solid #ffd700;
+  margin: 15px 0;
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 5px #ffd700; }
+  to { box-shadow: 0 0 20px #ffd700; }
 }
 
 .modal-actions {

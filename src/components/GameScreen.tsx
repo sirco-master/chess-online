@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Chess, Square } from 'chess.js'
 import { Chessboard } from 'react-chessboard'
 import { GameConfig } from '../App'
-import StockfishEngine, { difficultyConfigs } from '../utils/stockfish'
-import { addGameLog, getSetting, canUseAnalysis, markAnalysisUsed, getAnalysisCooldownRemaining, formatCooldownTime } from '../utils/gameStorage'
+import StockfishEngine, { difficultyConfigs, StockfishConfig } from '../utils/stockfish'
+import { addGameLog, getSetting, canUseAnalysis, markAnalysisUsed, getAnalysisCooldownRemaining, formatCooldownTime, awardMedal } from '../utils/gameStorage'
 import { analyzeGame, getMoveQualityDisplay } from '../utils/analysis'
 import { GameAnalysis, TIME_CONTROLS } from '../types'
 import { useOnlineGame } from '../utils/useOnlineGame'
@@ -14,6 +14,30 @@ interface GameScreenProps {
   config: GameConfig
   onBack: () => void
   onViewGameLog: () => void
+}
+
+// Map ELO to Stockfish difficulty configuration
+// Strategy: Progressive scaling of skill, depth, and move time based on ELO ranges
+// - Skill: Stockfish's skill level (0-20), higher = stronger play
+// - Depth: Search depth in half-moves, affects tactical accuracy
+// - MoveTime: Time allocated per move in ms, allows more calculation
+// ELO ranges roughly correspond to: Beginner (150-600), Intermediate (600-1200),
+// Advanced (1200-2000), Expert (2000-2800), Master (2800+)
+function getDifficultyConfigForElo(elo: number): StockfishConfig {
+  if (elo <= 200) return { skill: 0, depth: 1, moveTime: 100 }
+  if (elo <= 400) return { skill: 1, depth: 2, moveTime: 200 }
+  if (elo <= 600) return { skill: 3, depth: 3, moveTime: 300 }
+  if (elo <= 800) return { skill: 5, depth: 5, moveTime: 500 }
+  if (elo <= 1000) return { skill: 7, depth: 7, moveTime: 700 }
+  if (elo <= 1200) return { skill: 8, depth: 8, moveTime: 800 }
+  if (elo <= 1400) return { skill: 10, depth: 10, moveTime: 1000 }
+  if (elo <= 1600) return { skill: 11, depth: 11, moveTime: 1100 }
+  if (elo <= 1800) return { skill: 13, depth: 12, moveTime: 1200 }
+  if (elo <= 2000) return { skill: 15, depth: 13, moveTime: 1300 }
+  if (elo <= 2200) return { skill: 16, depth: 15, moveTime: 1500 }
+  if (elo <= 2500) return { skill: 17, depth: 17, moveTime: 1700 }
+  if (elo <= 2800) return { skill: 18, depth: 18, moveTime: 2000 }
+  return { skill: 20, depth: 20, moveTime: 3000 }
 }
 
 function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
@@ -30,7 +54,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
   const [possibleMoves, setPossibleMoves] = useState<Square[]>([])
   const [showGameOverModal, setShowGameOverModal] = useState(false)
-  const [gameResult, setGameResult] = useState<{ result: 'win' | 'loss' | 'draw'; message: string } | null>(null)
+  const [gameResult, setGameResult] = useState<{ result: 'win' | 'loss' | 'draw'; message: string; medalEarned?: boolean } | null>(null)
   const [whiteTime, setWhiteTime] = useState(TIME_CONTROLS[config.timeControl].timePerSide)
   const [blackTime, setBlackTime] = useState(TIME_CONTROLS[config.timeControl].timePerSide)
   const [isClockRunning, setIsClockRunning] = useState(false)
@@ -83,7 +107,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
 
   // Initialize stockfish for single-player modes
   useEffect(() => {
-    if (config.mode === 'single-player' || config.mode === 'personality-bot') {
+    if (config.mode === 'single-player' || config.mode === 'personality-bot' || config.mode === 'engine-bot') {
       stockfish.init().catch((error) => {
         console.error('Failed to initialize Stockfish:', error)
         setGameStatus('Error: Could not load chess engine')
@@ -100,7 +124,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
 
   // Initialize board orientation based on player color
   useEffect(() => {
-    if (config.playerColor === 'black' && (config.mode === 'single-player' || config.mode === 'personality-bot')) {
+    if (config.playerColor === 'black' && (config.mode === 'single-player' || config.mode === 'personality-bot' || config.mode === 'engine-bot')) {
       // If player is black, bot makes first move
       const newGame = new Chess()
       setGame(newGame)
@@ -144,14 +168,17 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
     setIsClockRunning(false)
     const winner = side === 'white' ? 'Black' : 'White'
     const playerWon = (side === 'white' && config.playerColor === 'black') || (side === 'black' && config.playerColor === 'white')
+    const result = playerWon ? 'win' : 'loss'
+    const medalEarned = checkForMedal(result)
     
     setGameStatus(`${winner} wins on time!`)
     setGameResult({
-      result: playerWon ? 'win' : 'loss',
-      message: `${winner} wins on time!`
+      result,
+      message: `${winner} wins on time!`,
+      medalEarned
     })
     setShowGameOverModal(true)
-    logGameResult(playerWon ? 'win' : 'loss')
+    logGameResult(result)
   }
 
   const playMoveSound = () => {
@@ -162,19 +189,33 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
     }
   }
 
+  const checkForMedal = (result: 'win' | 'loss' | 'draw'): boolean => {
+    // Check if medal should be awarded
+    if (result === 'win' && config.playMode === 'normal') {
+      const botId = config.personalityBot?.id || config.engineBot?.id
+      if (botId) {
+        return awardMedal(botId)
+      }
+    }
+    return false
+  }
+
   const updateGameStatus = useCallback((chess: Chess) => {
     if (chess.isGameOver()) {
       setIsClockRunning(false)
       if (chess.isCheckmate()) {
         const winner = chess.turn() === 'w' ? 'Black' : 'White'
         const playerWon = (winner === 'White' && config.playerColor === 'white') || (winner === 'Black' && config.playerColor === 'black')
+        const result = config.mode === '2-player' ? (chess.turn() === 'w' ? 'loss' : 'win') : (playerWon ? 'win' : 'loss')
+        const medalEarned = checkForMedal(result)
         setGameStatus(`Checkmate! ${winner} wins!`)
         setGameResult({
-          result: config.mode === '2-player' ? (chess.turn() === 'w' ? 'loss' : 'win') : (playerWon ? 'win' : 'loss'),
-          message: `Checkmate! ${winner} wins!`
+          result,
+          message: `Checkmate! ${winner} wins!`,
+          medalEarned
         })
         setShowGameOverModal(true)
-        logGameResult(playerWon ? 'win' : 'loss')
+        logGameResult(result)
       } else if (chess.isDraw()) {
         setGameStatus('Game drawn')
         setGameResult({ result: 'draw', message: 'Game drawn' })
@@ -206,7 +247,8 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
 
   const logGameResult = (result: 'win' | 'loss' | 'draw') => {
     const opponentName = config.personalityBot?.name || 
-                        (config.difficulty ? config.difficulty.charAt(0).toUpperCase() + config.difficulty.slice(1) + ' bot' : 'Opponent')
+                        (config.engineBot ? `Engine Bot (${config.engineBot.elo})` :
+                        (config.difficulty ? config.difficulty.charAt(0).toUpperCase() + config.difficulty.slice(1) + ' bot' : 'Opponent'))
     
     addGameLog({
       opponent: opponentName,
@@ -222,8 +264,14 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
 
     setIsThinking(true)
     try {
-      const difficulty = config.difficulty || 'beginner'
-      const diffConfig = difficultyConfigs[difficulty]
+      let diffConfig
+      if (config.engineBot) {
+        // Map engine bot ELO to difficulty config
+        diffConfig = getDifficultyConfigForElo(config.engineBot.elo)
+      } else {
+        const difficulty = config.difficulty || 'beginner'
+        diffConfig = difficultyConfigs[difficulty]
+      }
       const bestMove = await stockfish.getBestMove(chess.fen(), diffConfig)
       
       const from = bestMove.substring(0, 2)
@@ -262,7 +310,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
     
     // For 2-player mode, allow both sides
     // For single-player and online, only allow player's color
-    const isSinglePlayer = config.mode === 'single-player' || config.mode === 'personality-bot'
+    const isSinglePlayer = config.mode === 'single-player' || config.mode === 'personality-bot' || config.mode === 'engine-bot'
     if (isSinglePlayer || isOnlineMode) {
       const playerTurn = config.playerColor === 'white' ? 'w' : 'b'
       if (game.turn() !== playerTurn) return
@@ -337,7 +385,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
   const onDrop = (sourceSquare: string, targetSquare: string) => {
     if (isThinking) return false
     
-    const isSinglePlayer = config.mode === 'single-player' || config.mode === 'personality-bot'
+    const isSinglePlayer = config.mode === 'single-player' || config.mode === 'personality-bot' || config.mode === 'engine-bot'
     
     // Check if it's player's turn
     if (isSinglePlayer) {
@@ -399,41 +447,55 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
   }
 
   const handleUndo = () => {
-    if (undoRemaining <= 0 || config.mode === '2-player') return
+    // Check play mode restrictions
+    if (config.playMode === 'normal') return // No undo in Normal mode
+    if (config.mode === '2-player') return
     
-    const gameCopy = new Chess(game.fen())
-    
-    // Undo two moves (player + bot)
-    if (gameCopy.history().length >= 2) {
-      gameCopy.undo()
-      gameCopy.undo()
-      moveHistory.current = moveHistory.current.slice(0, -2)
-    } else {
-      return
+    // In Friendly mode, no limit on undos
+    if (config.playMode === 'friendly' || undoRemaining > 0) {
+      const gameCopy = new Chess(game.fen())
+      
+      // Undo two moves (player + bot)
+      if (gameCopy.history().length >= 2) {
+        gameCopy.undo()
+        gameCopy.undo()
+        moveHistory.current = moveHistory.current.slice(0, -2)
+      } else {
+        return
+      }
+      
+      setGame(new Chess(gameCopy.fen()))
+      updateGameStatus(gameCopy)
+      if (config.playMode !== 'friendly') {
+        setUndoRemaining(undoRemaining - 1)
+      }
+      setHintMove('')
+      setSelectedSquare(null)
+      setPossibleMoves([])
     }
-    
-    setGame(new Chess(gameCopy.fen()))
-    updateGameStatus(gameCopy)
-    setUndoRemaining(undoRemaining - 1)
-    setHintMove('')
-    setSelectedSquare(null)
-    setPossibleMoves([])
   }
 
   const handleHint = async () => {
-    if (hintsRemaining <= 0 || config.mode === '2-player' || isThinking) return
+    // Check play mode restrictions
+    if (config.playMode === 'normal') return // No hints in Normal mode
+    if (config.mode === '2-player' || isThinking) return
     
-    setIsThinking(true)
-    try {
-      const difficulty = config.difficulty || 'beginner'
-      const diffConfig = difficultyConfigs[difficulty]
-      const bestMove = await stockfish.getBestMove(game.fen(), { ...diffConfig, skill: 20, depth: 15 })
-      setHintMove(bestMove)
-      setHintsRemaining(hintsRemaining - 1)
-    } catch (error) {
-      console.error('Hint error:', error)
-    } finally {
-      setIsThinking(false)
+    // In Friendly mode, no limit on hints
+    if (config.playMode === 'friendly' || hintsRemaining > 0) {
+      setIsThinking(true)
+      try {
+        const difficulty = config.difficulty || 'beginner'
+        const diffConfig = difficultyConfigs[difficulty]
+        const bestMove = await stockfish.getBestMove(game.fen(), { ...diffConfig, skill: 20, depth: 15 })
+        setHintMove(bestMove)
+        if (config.playMode !== 'friendly') {
+          setHintsRemaining(hintsRemaining - 1)
+        }
+      } catch (error) {
+        console.error('Hint error:', error)
+      } finally {
+        setIsThinking(false)
+      }
     }
   }
 
@@ -464,7 +526,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
     updateGameStatus(newGame)
 
     // If player is black, make bot move first
-    if (config.playerColor === 'black' && (config.mode === 'single-player' || config.mode === 'personality-bot')) {
+    if (config.playerColor === 'black' && (config.mode === 'single-player' || config.mode === 'personality-bot' || config.mode === 'engine-bot')) {
       setTimeout(() => makeBotMove(newGame), 500)
     }
   }
@@ -537,6 +599,8 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
       return `${config.opponentAvatar || '👤'} ${config.opponentName}`
     } else if (config.personalityBot) {
       return `${config.personalityBot.avatar} ${config.personalityBot.name}`
+    } else if (config.engineBot) {
+      return `${config.engineBot.avatar} Engine Bot (${config.engineBot.elo})`
     } else if (config.difficulty) {
       return `${config.difficulty.charAt(0).toUpperCase() + config.difficulty.slice(1)} Bot`
     }
@@ -548,6 +612,9 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
       <div className="game-container">
         <div className="game-header">
           <h2 className="game-title">{getOpponentName()}</h2>
+          <div className="play-mode-indicator">
+            {config.playMode === 'normal' ? '🏆 Normal Mode' : '🎮 Friendly Mode'}
+          </div>
           <div className="game-status">{gameStatus}</div>
         </div>
 
@@ -589,21 +656,23 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
       </div>
 
         <div className="game-controls">
-          {(config.mode === 'single-player' || config.mode === 'personality-bot') && (
+          {(config.mode === 'single-player' || config.mode === 'personality-bot' || config.mode === 'engine-bot') && (
             <>
               <button 
                 className="control-button hint-button"
                 onClick={handleHint}
-                disabled={hintsRemaining <= 0 || isThinking || game.isGameOver()}
+                disabled={config.playMode === 'normal' || isThinking || game.isGameOver()}
+                title={config.playMode === 'normal' ? 'Not available in Normal mode' : config.playMode === 'friendly' ? 'Unlimited hints in Friendly mode' : ''}
               >
-                💡 Hint ({hintsRemaining})
+                💡 Hint {config.playMode === 'friendly' ? '(∞)' : `(${hintsRemaining})`}
               </button>
               <button 
                 className="control-button undo-button"
                 onClick={handleUndo}
-                disabled={undoRemaining <= 0 || game.history().length < 2 || isThinking || game.isGameOver()}
+                disabled={config.playMode === 'normal' || game.history().length < 2 || isThinking || game.isGameOver()}
+                title={config.playMode === 'normal' ? 'Not available in Normal mode' : config.playMode === 'friendly' ? 'Unlimited undo in Friendly mode' : ''}
               >
-                ↶ Undo ({undoRemaining})
+                ↶ Undo {config.playMode === 'friendly' ? '(∞)' : `(${undoRemaining})`}
               </button>
             </>
           )}
@@ -657,6 +726,11 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
                 {gameResult.result === 'win' ? '🏆' : gameResult.result === 'loss' ? '😔' : '🤝'}
               </div>
               <h2 className="modal-title">{gameResult.message}</h2>
+              {gameResult.medalEarned && (
+                <p className="medal-earned">
+                  🏅 Medal Earned! First time beating this bot!
+                </p>
+              )}
               <p className="modal-subtitle">
                 {gameResult.result === 'win' ? 'Congratulations!' : 
                  gameResult.result === 'loss' ? 'Better luck next time!' : 

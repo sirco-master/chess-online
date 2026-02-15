@@ -1,9 +1,11 @@
-import { GameLog, GameResult as _GameResult, TimeControlType as _TimeControlType } from '../types'
+import { GameLog, GameResult as _GameResult, TimeControlType as _TimeControlType, UserProfile, MedalProgress, PERSONALITY_BOTS, ENGINE_BOTS } from '../types'
 
 const GAME_LOG_KEY = 'chess_game_log'
 const MAX_LOGS = 10
 const ANALYSIS_COOLDOWN_KEY = 'chess_analysis_last_used'
 const ANALYSIS_COOLDOWN_MS = 24 * 60 * 60 * 1000 // 24 hours
+const USER_PROFILE_KEY = 'chess_user_profile'
+const MEDAL_PROGRESS_KEY = 'chess_medal_progress'
 
 // Game log functions
 export function getGameLogs(): GameLog[] {
@@ -118,4 +120,121 @@ export function setSetting(key: string, value: boolean): void {
   } catch (error) {
     console.error('Error saving setting:', error)
   }
+}
+
+// Profile functions
+export function getUserProfile(): UserProfile {
+  try {
+    const profile = localStorage.getItem(USER_PROFILE_KEY)
+    if (profile) {
+      return JSON.parse(profile)
+    }
+    // Default profile
+    return {
+      username: 'Player',
+      avatar: '👤',
+      bio: 'Chess enthusiast',
+      elo: 1200,
+      beatenBots: []
+    }
+  } catch (error) {
+    console.error('Error reading user profile:', error)
+    return {
+      username: 'Player',
+      avatar: '👤',
+      bio: 'Chess enthusiast',
+      elo: 1200,
+      beatenBots: []
+    }
+  }
+}
+
+export function saveUserProfile(profile: UserProfile): void {
+  try {
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile))
+  } catch (error) {
+    console.error('Error saving user profile:', error)
+  }
+}
+
+export function updateUserProfile(updates: Partial<UserProfile>): void {
+  const profile = getUserProfile()
+  const updated = { ...profile, ...updates }
+  saveUserProfile(updated)
+}
+
+// Medal functions
+export function getMedalProgress(): MedalProgress {
+  try {
+    const progress = localStorage.getItem(MEDAL_PROGRESS_KEY)
+    if (progress) {
+      return JSON.parse(progress)
+    }
+    // Default progress
+    return {
+      totalMedals: 0,
+      personalityMedals: 0,
+      engineMedals: 0,
+      beatenBots: []
+    }
+  } catch (error) {
+    console.error('Error reading medal progress:', error)
+    return {
+      totalMedals: 0,
+      personalityMedals: 0,
+      engineMedals: 0,
+      beatenBots: []
+    }
+  }
+}
+
+export function saveMedalProgress(progress: MedalProgress): void {
+  try {
+    localStorage.setItem(MEDAL_PROGRESS_KEY, JSON.stringify(progress))
+  } catch (error) {
+    console.error('Error saving medal progress:', error)
+  }
+}
+
+export function awardMedal(botId: string): boolean {
+  try {
+    const progress = getMedalProgress()
+    
+    // Check if bot already beaten
+    if (progress.beatenBots.includes(botId)) {
+      return false // Already have this medal
+    }
+    
+    // Add bot to beaten list
+    progress.beatenBots.push(botId)
+    
+    // Check if it's a personality bot or engine bot
+    const isPersonalityBot = PERSONALITY_BOTS.some(bot => bot.id === botId)
+    const isEngineBot = ENGINE_BOTS.some(bot => bot.id === botId)
+    
+    if (isPersonalityBot) {
+      progress.personalityMedals++
+    } else if (isEngineBot) {
+      progress.engineMedals++
+    }
+    
+    progress.totalMedals = progress.personalityMedals + progress.engineMedals
+    
+    saveMedalProgress(progress)
+    
+    // Also update user profile
+    const profile = getUserProfile()
+    profile.beatenBots = progress.beatenBots
+    saveUserProfile(profile)
+    
+    return true // Medal awarded
+  } catch (error) {
+    console.error('Error awarding medal:', error)
+    return false
+  }
+}
+
+export function hasMedal(botId: string): boolean {
+  const progress = getMedalProgress()
+  return progress.beatenBots.includes(botId)
 }

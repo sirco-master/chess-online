@@ -55,15 +55,15 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
-/* Bot type selection */
-.bot-type-options {
+/* Bot category selection */
+.bot-category-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
 }
 
-.bot-type-button {
+.bot-category-button {
   background: linear-gradient(135deg, #8b7355 0%, #6d5d4b 100%);
   color: #f5deb3;
   padding: 30px 20px;
@@ -74,74 +74,41 @@
   transition: all 0.3s;
 }
 
-.bot-type-button:hover {
+.bot-category-button:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   border-color: #ffd700;
 }
 
-.bot-type-icon {
+.bot-category-icon {
   font-size: 3rem;
   margin-bottom: 15px;
 }
 
-.bot-type-name {
+.bot-category-name {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 10px;
   color: #ffd700;
 }
 
-.bot-type-desc {
-  font-size: 1rem;
+.bot-category-desc {
+  font-size: 0.95rem;
   color: #f5deb3;
 }
 
-/* Classic difficulty grid */
-.difficulty-grid {
+/* Bot list grid */
+.bot-list-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.difficulty-button {
-  background: linear-gradient(135deg, #8b7355 0%, #6d5d4b 100%);
-  color: #f5deb3;
-  padding: 20px;
-  border-radius: 10px;
-  border: 2px solid #d4a574;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  transition: all 0.3s;
-}
-
-.difficulty-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-  border-color: #ffd700;
-}
-
-.difficulty-name {
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.difficulty-elo {
-  font-size: 1rem;
-  color: #ffd700;
-}
-
-/* Personality bot grid */
-.personality-bot-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 10px;
 }
 
-.personality-bot-button {
+.bot-list-button {
   background: linear-gradient(135deg, #8b7355 0%, #6d5d4b 100%);
   color: #f5deb3;
   padding: 25px;
@@ -150,9 +117,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   text-align: center;
   transition: all 0.3s;
+  position: relative;
 }
 
-.personality-bot-button:hover {
+.bot-list-button:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   border-color: #ffd700;
@@ -179,6 +147,62 @@
 
 .bot-description {
   font-size: 0.95rem;
+  line-height: 1.4;
+  color: #f5deb3;
+}
+
+.bot-elo {
+  font-size: 1rem;
+  color: #d4a574;
+  margin-top: 8px;
+}
+
+.bot-medal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+}
+
+/* Play mode selection */
+.play-mode-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.play-mode-button {
+  background: linear-gradient(135deg, #8b7355 0%, #6d5d4b 100%);
+  color: #f5deb3;
+  padding: 35px 25px;
+  border-radius: 15px;
+  border: 2px solid #d4a574;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.play-mode-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  border-color: #ffd700;
+}
+
+.play-mode-icon {
+  font-size: 3.5rem;
+  margin-bottom: 15px;
+}
+
+.play-mode-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #ffd700;
+}
+
+.play-mode-desc {
+  font-size: 1rem;
   line-height: 1.4;
   color: #f5deb3;
 }
@@ -349,15 +373,15 @@
   }
 
   .mode-options,
-  .bot-type-options {
+  .play-mode-options {
     grid-template-columns: 1fr;
   }
 
-  .difficulty-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  .bot-category-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
-  .personality-bot-grid {
+  .bot-list-grid {
     grid-template-columns: 1fr;
   }
 
@@ -370,11 +394,19 @@
     font-size: 1.4rem;
   }
 
-  .bot-type-icon {
+  .bot-category-icon {
     font-size: 2.5rem;
   }
 
-  .bot-type-name {
+  .bot-category-name {
+    font-size: 1.3rem;
+  }
+
+  .play-mode-icon {
+    font-size: 2.8rem;
+  }
+
+  .play-mode-name {
     font-size: 1.3rem;
   }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "chess-online",
+  "name": "chess-world",
   "version": "1.0.0",
-  "description": "A complete web-based chess game with bot AI and 2-player mode",
+  "description": "Chess World - A complete web-based chess game with personality bots, engine bots, and online play",
   "main": "server/index.js",
   "scripts": {
     "dev": "vite",

@@ -10,7 +10,7 @@ interface OnlineLobbyScreenProps {
   onBack: () => void
 }
 
-type LobbyMode = 'select' | 'public-searching' | 'private-create' | 'private-join' | 'private-waiting'
+type LobbyMode = 'select' | 'public-searching' | 'private-create' | 'private-join' | 'private-waiting' | 'opponent-found'
 
 function OnlineLobbyScreen({ username, avatar, onGameStart, onBack }: OnlineLobbyScreenProps) {
   const [mode, setMode] = useState<LobbyMode>('select')
@@ -28,7 +28,17 @@ function OnlineLobbyScreen({ username, avatar, onGameStart, onBack }: OnlineLobb
 
     wsClient.onGameStart((data) => {
       console.log('Game starting:', data)
-      onGameStart(data)
+      // Show opponent card before starting game
+      if (data.opponent) {
+        // Set a short delay to show the "You've been paired with..." screen
+        setMode('opponent-found')
+        setLobbyData(data)
+        setTimeout(() => {
+          onGameStart(data)
+        }, 3000) // 3 second delay to show opponent card
+      } else {
+        onGameStart(data)
+      }
     })
 
     wsClient.onLobbyCreated((data) => {
@@ -276,6 +286,37 @@ function OnlineLobbyScreen({ username, avatar, onGameStart, onBack }: OnlineLobb
             <button className="back-button" onClick={handleBackToSelect}>
               ← Back
             </button>
+          </>
+        )}
+
+        {mode === 'opponent-found' && lobbyData && (
+          <>
+            <h1 className="lobby-title">You've been paired with...</h1>
+            
+            <div className="opponent-card">
+              <div className="opponent-card-header">
+                <div className="opponent-avatar-large">{lobbyData.opponent?.avatar || '👤'}</div>
+                <div className="opponent-info">
+                  <h2 className="opponent-username">{lobbyData.opponent?.username || 'Opponent'}</h2>
+                  <div className="opponent-elo">
+                    ELO: {lobbyData.opponent?.elo || 1200}
+                  </div>
+                  <div className="opponent-medals">
+                    🏅 {lobbyData.opponent?.medals || 0} Medals
+                  </div>
+                </div>
+              </div>
+              
+              {lobbyData.opponent?.bio && (
+                <div className="opponent-bio">
+                  "{lobbyData.opponent.bio}"
+                </div>
+              )}
+              
+              <div className="starting-soon">
+                Game starting soon...
+              </div>
+            </div>
           </>
         )}
       </div>

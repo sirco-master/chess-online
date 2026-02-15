@@ -5,9 +5,10 @@ import './HomeScreen.css'
 interface HomeScreenProps {
   onPlay: () => void
   onViewGameLog: () => void
+  onViewProfile: () => void
 }
 
-function HomeScreen({ onPlay, onViewGameLog }: HomeScreenProps) {
+function HomeScreen({ onPlay, onViewGameLog, onViewProfile }: HomeScreenProps) {
   const [sfxEnabled, setSfxEnabled] = useState(true)
   const [clickToMove, setClickToMove] = useState(true)
   const [showMoveGrid, setShowMoveGrid] = useState(true)
@@ -39,8 +40,16 @@ function HomeScreen({ onPlay, onViewGameLog }: HomeScreenProps) {
 
   return (
     <div className="home-screen">
+      {/* Logo in top left */}
+      <div className="app-logo">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="8" fill="#2C3E50"/>
+          <text x="20" y="28" fontSize="24" fill="white" textAnchor="middle" fontWeight="bold">CW</text>
+        </svg>
+      </div>
+      
       <div className="home-container">
-        <h1 className="title">Welcome to Chess Online</h1>
+        <h1 className="title">Welcome to Chess World</h1>
         
         <button className="play-button" onClick={onPlay}>
           Play
@@ -48,6 +57,10 @@ function HomeScreen({ onPlay, onViewGameLog }: HomeScreenProps) {
 
         <button className="game-log-button" onClick={onViewGameLog}>
           📊 Game History
+        </button>
+
+        <button className="profile-button" onClick={onViewProfile}>
+          👤 Profile
         </button>
 
         <button className="settings-button" onClick={() => setShowSettings(!showSettings)}>
