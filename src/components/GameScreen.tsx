@@ -5,7 +5,7 @@ import { GameConfig } from '../App'
 import StockfishEngine, { difficultyConfigs } from '../utils/stockfish'
 import { addGameLog, getSetting, canUseAnalysis, markAnalysisUsed, getAnalysisCooldownRemaining, formatCooldownTime } from '../utils/gameStorage'
 import { analyzeGame, getMoveQualityDisplay } from '../utils/analysis'
-import { GameAnalysis } from '../types'
+import { GameAnalysis, TIME_CONTROLS } from '../types'
 import './GameScreen.css'
 
 interface GameScreenProps {
@@ -29,8 +29,8 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
   const [possibleMoves, setPossibleMoves] = useState<Square[]>([])
   const [showGameOverModal, setShowGameOverModal] = useState(false)
   const [gameResult, setGameResult] = useState<{ result: 'win' | 'loss' | 'draw'; message: string } | null>(null)
-  const [whiteTime, setWhiteTime] = useState(config.timeControl === 'normal' ? 0 : config.timeControl === 'rapid' ? 600 : config.timeControl === 'blitz' ? 180 : 60)
-  const [blackTime, setBlackTime] = useState(config.timeControl === 'normal' ? 0 : config.timeControl === 'rapid' ? 600 : config.timeControl === 'blitz' ? 180 : 60)
+  const [whiteTime, setWhiteTime] = useState(TIME_CONTROLS[config.timeControl].timePerSide)
+  const [blackTime, setBlackTime] = useState(TIME_CONTROLS[config.timeControl].timePerSide)
   const [isClockRunning, setIsClockRunning] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [showAnalysis, setShowAnalysis] = useState(false)
@@ -205,7 +205,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
         
         // Add time increment
         if (config.timeControl !== 'normal') {
-          const increment = config.timeControl === 'rapid' ? 5 : config.timeControl === 'blitz' ? 2 : 1
+          const increment = TIME_CONTROLS[config.timeControl].increment
           if (chess.turn() === 'w') {
             setBlackTime(prev => prev + increment)
           } else {
@@ -254,7 +254,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
 
           // Add time increment
           if (config.timeControl !== 'normal') {
-            const increment = config.timeControl === 'rapid' ? 5 : config.timeControl === 'blitz' ? 2 : 1
+            const increment = TIME_CONTROLS[config.timeControl].increment
             if (gameCopy.turn() === 'w') {
               setBlackTime(prev => prev + increment)
             } else {
@@ -400,7 +400,7 @@ function GameScreen({ config, onBack, onViewGameLog }: GameScreenProps) {
     
     // Reset clocks
     if (config.timeControl !== 'normal') {
-      const time = config.timeControl === 'rapid' ? 600 : config.timeControl === 'blitz' ? 180 : 60
+      const time = TIME_CONTROLS[config.timeControl].timePerSide
       setWhiteTime(time)
       setBlackTime(time)
       setIsClockRunning(false)

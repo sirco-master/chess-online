@@ -21,7 +21,7 @@ export function addGameLog(log: Omit<GameLog, 'id' | 'date'>): void {
     const logs = getGameLogs()
     const newLog: GameLog = {
       ...log,
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       date: Date.now()
     }
     
