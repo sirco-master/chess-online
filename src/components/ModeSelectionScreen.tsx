@@ -5,6 +5,7 @@ import './ModeSelectionScreen.css'
 
 interface ModeSelectionScreenProps {
   onStartGame: (config: GameConfig) => void
+  onStartOnline: () => void
   onBack: () => void
 }
 
@@ -23,7 +24,7 @@ const classicDifficulties: { name: string; difficulty: Difficulty; elo: number }
 
 type SelectionStep = 'mode' | 'bot-type' | 'classic-difficulty' | 'personality-bot' | 'game-setup'
 
-function ModeSelectionScreen({ onStartGame, onBack }: ModeSelectionScreenProps) {
+function ModeSelectionScreen({ onStartGame, onStartOnline, onBack }: ModeSelectionScreenProps) {
   const [step, setStep] = useState<SelectionStep>('mode')
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('beginner')
   const [selectedPersonalityBot, setSelectedPersonalityBot] = useState<PersonalityBot | null>(null)
@@ -31,8 +32,10 @@ function ModeSelectionScreen({ onStartGame, onBack }: ModeSelectionScreenProps) 
   const [selectedColor, setSelectedColor] = useState<'white' | 'black'>('white')
   const [is2Player, setIs2Player] = useState(false)
 
-  const handleModeSelect = (mode: 'bot' | '2-player') => {
-    if (mode === '2-player') {
+  const handleModeSelect = (mode: 'bot' | '2-player' | 'online') => {
+    if (mode === 'online') {
+      onStartOnline()
+    } else if (mode === '2-player') {
       setIs2Player(true)
       setStep('game-setup')
     } else {
@@ -107,6 +110,9 @@ function ModeSelectionScreen({ onStartGame, onBack }: ModeSelectionScreenProps) 
               </button>
               <button className="mode-option-button" onClick={() => handleModeSelect('2-player')}>
                 👥 2 Player Local
+              </button>
+              <button className="mode-option-button online" onClick={() => handleModeSelect('online')}>
+                🌐 Play Online
               </button>
             </div>
             <button className="back-button" onClick={onBack}>

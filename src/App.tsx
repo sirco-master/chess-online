@@ -3,6 +3,8 @@ import HomeScreen from './components/HomeScreen'
 import ModeSelectionScreen from './components/ModeSelectionScreen'
 import GameScreen from './components/GameScreen'
 import GameLogScreen from './components/GameLogScreen'
+import OnlineSetupScreen from './components/OnlineSetupScreen'
+import OnlineLobbyScreen from './components/OnlineLobbyScreen'
 import { Screen, GameMode, Difficulty, TimeControlType, PersonalityBot } from './types'
 
 export interface GameConfig {
@@ -11,6 +13,9 @@ export interface GameConfig {
   personalityBot?: PersonalityBot
   timeControl: TimeControlType
   playerColor: 'white' | 'black'
+  gameId?: string // For online games
+  opponentName?: string // For online games
+  opponentAvatar?: string // For online games
 }
 
 function App() {
@@ -21,6 +26,8 @@ function App() {
     timeControl: 'normal',
     playerColor: 'white'
   })
+  const [onlineUsername, setOnlineUsername] = useState('')
+  const [onlineAvatar, setOnlineAvatar] = useState('')
 
   const startGame = (config: GameConfig) => {
     setGameConfig(config)
@@ -39,6 +46,28 @@ function App() {
     setCurrentScreen('home')
   }
 
+  const goToOnlineSetup = () => {
+    setCurrentScreen('online-setup')
+  }
+
+  const handleOnlineSetupComplete = (username: string, avatar: string) => {
+    setOnlineUsername(username)
+    setOnlineAvatar(avatar)
+    setCurrentScreen('online-lobby')
+  }
+
+  const handleOnlineGameStart = (gameData: any) => {
+    const config: GameConfig = {
+      mode: gameData.color === 'white' ? 'online-public' : 'online-private',
+      timeControl: gameData.timeControl || 'blitz',
+      playerColor: gameData.color,
+      gameId: gameData.gameId,
+      opponentName: gameData.opponent.username,
+      opponentAvatar: gameData.opponent.avatar
+    }
+    startGame(config)
+  }
+
   return (
     <>
       {currentScreen === 'home' && (
@@ -49,8 +78,23 @@ function App() {
       )}
       {currentScreen === 'mode-selection' && (
         <ModeSelectionScreen 
-          onStartGame={startGame} 
+          onStartGame={startGame}
+          onStartOnline={goToOnlineSetup}
           onBack={goToHome} 
+        />
+      )}
+      {currentScreen === 'online-setup' && (
+        <OnlineSetupScreen
+          onSetupComplete={handleOnlineSetupComplete}
+          onBack={goToModeSelection}
+        />
+      )}
+      {currentScreen === 'online-lobby' && (
+        <OnlineLobbyScreen
+          username={onlineUsername}
+          avatar={onlineAvatar}
+          onGameStart={handleOnlineGameStart}
+          onBack={goToModeSelection}
         />
       )}
       {currentScreen === 'game' && (
