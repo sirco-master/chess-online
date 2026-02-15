@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Difficulty, PERSONALITY_BOTS, TIME_CONTROLS, TimeControlType, PersonalityBot } from '../types'
+import { BotCategory, PERSONALITY_BOTS_BY_CATEGORY, ENGINE_BOTS, TIME_CONTROLS, TimeControlType, PersonalityBot, EngineBot, PlayMode } from '../types'
 import { GameConfig } from '../App'
+import { hasMedal } from '../utils/gameStorage'
 import './ModeSelectionScreen.css'
 
 interface ModeSelectionScreenProps {
@@ -9,25 +10,24 @@ interface ModeSelectionScreenProps {
   onBack: () => void
 }
 
-const classicDifficulties: { name: string; difficulty: Difficulty; elo: number }[] = [
-  { name: 'Practice', difficulty: 'practice', elo: 150 },
-  { name: 'Beginner', difficulty: 'beginner', elo: 300 },
-  { name: 'Easy', difficulty: 'easy', elo: 500 },
-  { name: 'Intermediate', difficulty: 'intermediate', elo: 800 },
-  { name: 'Moderate', difficulty: 'moderate', elo: 1200 },
-  { name: 'Tough', difficulty: 'tough', elo: 1500 },
-  { name: 'Hard', difficulty: 'hard', elo: 1800 },
-  { name: 'Insane', difficulty: 'insane', elo: 2100 },
-  { name: 'Extreme', difficulty: 'extreme', elo: 2500 },
-  { name: 'Impossible', difficulty: 'impossible', elo: 3000 },
-]
+type SelectionStep = 'mode' | 'bot-category' | 'bot-list' | 'play-mode' | 'game-setup'
 
-type SelectionStep = 'mode' | 'bot-type' | 'classic-difficulty' | 'personality-bot' | 'game-setup'
+const BOT_CATEGORIES: { category: BotCategory; name: string; icon: string; description: string }[] = [
+  { category: 'beginner', name: 'Beginner', icon: '🐣', description: 'ELO 200-500 - Perfect for learning' },
+  { category: 'intermediate', name: 'Intermediate', icon: '🎯', description: 'ELO 600-1000 - Tactical challenges' },
+  { category: 'master', name: 'Master', icon: '♟️', description: 'ELO 1200-1600 - Advanced play' },
+  { category: 'champion', name: 'Champion', icon: '👑', description: 'ELO 1800-2200 - Elite opponents' },
+  { category: 'historical', name: 'Historical', icon: '🎩', description: 'ELO 1400-2400 - Legendary styles' },
+  { category: 'rzplay-staff', name: 'RzPlay Staff', icon: '⚙️', description: 'ELO 250-2600 - Unique bots' },
+  { category: 'engine', name: 'Engine', icon: '🤖', description: 'ELO 150-3200 - Pure strength' }
+]
 
 function ModeSelectionScreen({ onStartGame, onStartOnline, onBack }: ModeSelectionScreenProps) {
   const [step, setStep] = useState<SelectionStep>('mode')
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('beginner')
+  const [selectedCategory, setSelectedCategory] = useState<BotCategory | null>(null)
   const [selectedPersonalityBot, setSelectedPersonalityBot] = useState<PersonalityBot | null>(null)
+  const [selectedEngineBot, setSelectedEngineBot] = useState<EngineBot | null>(null)
+  const [selectedPlayMode, setSelectedPlayMode] = useState<PlayMode>('normal')
   const [selectedTimeControl, setSelectedTimeControl] = useState<TimeControlType>('normal')
   const [selectedColor, setSelectedColor] = useState<'white' | 'black'>('white')
   const [is2Player, setIs2Player] = useState(false)
@@ -37,60 +37,74 @@ function ModeSelectionScreen({ onStartGame, onStartOnline, onBack }: ModeSelecti
       onStartOnline()
     } else if (mode === '2-player') {
       setIs2Player(true)
+      setSelectedPlayMode('friendly') // 2-player is always friendly mode
       setStep('game-setup')
     } else {
       setIs2Player(false)
-      setStep('bot-type')
+      setStep('bot-category')
     }
   }
 
-  const handleBotTypeSelect = (type: 'classic' | 'personality') => {
-    if (type === 'classic') {
-      setStep('classic-difficulty')
+  const handleCategorySelect = (category: BotCategory) => {
+    setSelectedCategory(category)
+    setStep('bot-list')
+  }
+
+  const handleBotSelect = (bot: PersonalityBot | EngineBot) => {
+    if ('personality' in bot) {
+      // PersonalityBot
+      setSelectedPersonalityBot(bot as PersonalityBot)
+      setSelectedEngineBot(null)
     } else {
-      setStep('personality-bot')
+      // EngineBot
+      setSelectedEngineBot(bot as EngineBot)
+      setSelectedPersonalityBot(null)
     }
+    setStep('play-mode')
   }
 
-  const handleClassicDifficultySelect = (difficulty: Difficulty) => {
-    setSelectedDifficulty(difficulty)
-    setSelectedPersonalityBot(null)
-    setStep('game-setup')
-  }
-
-  const handlePersonalityBotSelect = (bot: PersonalityBot) => {
-    setSelectedPersonalityBot(bot)
-    setSelectedDifficulty(bot.difficulty)
+  const handlePlayModeSelect = (playMode: PlayMode) => {
+    setSelectedPlayMode(playMode)
     setStep('game-setup')
   }
 
   const handleStartGame = () => {
+    let mode: GameConfig['mode'] = 'single-player'
+    if (is2Player) {
+      mode = '2-player'
+    } else if (selectedPersonalityBot) {
+      mode = 'personality-bot'
+    } else if (selectedEngineBot) {
+      mode = 'engine-bot'
+    }
+
     const config: GameConfig = {
-      mode: is2Player ? '2-player' : selectedPersonalityBot ? 'personality-bot' : 'single-player',
-      difficulty: selectedDifficulty,
+      mode,
       personalityBot: selectedPersonalityBot || undefined,
+      engineBot: selectedEngineBot || undefined,
       timeControl: selectedTimeControl,
-      playerColor: selectedColor
+      playerColor: selectedColor,
+      playMode: selectedPlayMode
     }
     onStartGame(config)
   }
 
   const handleBackStep = () => {
     switch (step) {
-      case 'bot-type':
+      case 'bot-category':
         setStep('mode')
         break
-      case 'classic-difficulty':
-      case 'personality-bot':
-        setStep('bot-type')
+      case 'bot-list':
+        setStep('bot-category')
+        break
+      case 'play-mode':
+        setStep('bot-list')
         break
       case 'game-setup':
         if (is2Player) {
           setStep('mode')
-        } else if (selectedPersonalityBot) {
-          setStep('personality-bot')
         } else {
-          setStep('classic-difficulty')
+          setStep('play-mode')
         }
         break
       default:
@@ -121,39 +135,19 @@ function ModeSelectionScreen({ onStartGame, onStartOnline, onBack }: ModeSelecti
           </>
         )}
 
-        {step === 'bot-type' && (
+        {step === 'bot-category' && (
           <>
-            <h1 className="mode-title">Choose Bot Type</h1>
-            <div className="bot-type-options">
-              <button className="bot-type-button" onClick={() => handleBotTypeSelect('personality')}>
-                <div className="bot-type-icon">🎭</div>
-                <div className="bot-type-name">Personality Bots</div>
-                <div className="bot-type-desc">Unique playing styles and characters</div>
-              </button>
-              <button className="bot-type-button" onClick={() => handleBotTypeSelect('classic')}>
-                <div className="bot-type-icon">🎯</div>
-                <div className="bot-type-name">Classic Difficulty</div>
-                <div className="bot-type-desc">Traditional ELO-based opponents</div>
-              </button>
-            </div>
-            <button className="back-button" onClick={handleBackStep}>
-              ← Back
-            </button>
-          </>
-        )}
-
-        {step === 'classic-difficulty' && (
-          <>
-            <h1 className="mode-title">Choose Difficulty</h1>
-            <div className="difficulty-grid">
-              {classicDifficulties.map((diff) => (
+            <h1 className="mode-title">Choose Bot Category</h1>
+            <div className="bot-category-grid">
+              {BOT_CATEGORIES.map((cat) => (
                 <button
-                  key={diff.difficulty}
-                  className="difficulty-button"
-                  onClick={() => handleClassicDifficultySelect(diff.difficulty)}
+                  key={cat.category}
+                  className="bot-category-button"
+                  onClick={() => handleCategorySelect(cat.category)}
                 >
-                  <div className="difficulty-name">{diff.name}</div>
-                  <div className="difficulty-elo">{diff.elo} ELO</div>
+                  <div className="bot-category-icon">{cat.icon}</div>
+                  <div className="bot-category-name">{cat.name}</div>
+                  <div className="bot-category-desc">{cat.description}</div>
                 </button>
               ))}
             </div>
@@ -163,22 +157,68 @@ function ModeSelectionScreen({ onStartGame, onStartOnline, onBack }: ModeSelecti
           </>
         )}
 
-        {step === 'personality-bot' && (
+        {step === 'bot-list' && selectedCategory && (
           <>
-            <h1 className="mode-title">Choose Your Opponent</h1>
-            <div className="personality-bot-grid">
-              {PERSONALITY_BOTS.map((bot) => (
-                <button
-                  key={bot.id}
-                  className="personality-bot-button"
-                  onClick={() => handlePersonalityBotSelect(bot)}
-                >
-                  <div className="bot-avatar">{bot.avatar}</div>
-                  <div className="bot-name">{bot.name}</div>
-                  <div className="bot-personality">{bot.personality}</div>
-                  <div className="bot-description">{bot.description}</div>
-                </button>
-              ))}
+            <h1 className="mode-title">
+              {BOT_CATEGORIES.find(c => c.category === selectedCategory)?.name} Bots
+            </h1>
+            <div className="bot-list-grid">
+              {selectedCategory === 'engine' ? (
+                // Engine bots - display as ELO only
+                ENGINE_BOTS.map((bot) => (
+                  <button
+                    key={bot.id}
+                    className="bot-list-button"
+                    onClick={() => handleBotSelect(bot)}
+                  >
+                    <div className="bot-avatar">{bot.avatar}</div>
+                    <div className="bot-name">{bot.elo} ELO</div>
+                    {hasMedal(bot.id) && <div className="bot-medal">🏅</div>}
+                  </button>
+                ))
+              ) : (
+                // Personality bots
+                PERSONALITY_BOTS_BY_CATEGORY[selectedCategory].map((bot) => (
+                  <button
+                    key={bot.id}
+                    className="bot-list-button"
+                    onClick={() => handleBotSelect(bot)}
+                  >
+                    <div className="bot-avatar">{bot.avatar}</div>
+                    <div className="bot-name">{bot.name}</div>
+                    <div className="bot-personality">{bot.personality}</div>
+                    <div className="bot-elo">{bot.elo} ELO</div>
+                    {hasMedal(bot.id) && <div className="bot-medal">🏅</div>}
+                  </button>
+                ))
+              )}
+            </div>
+            <button className="back-button" onClick={handleBackStep}>
+              ← Back
+            </button>
+          </>
+        )}
+
+        {step === 'play-mode' && (
+          <>
+            <h1 className="mode-title">Choose Play Mode</h1>
+            <div className="play-mode-options">
+              <button
+                className="play-mode-button"
+                onClick={() => handlePlayModeSelect('normal')}
+              >
+                <div className="play-mode-icon">⚔️</div>
+                <div className="play-mode-name">Normal Mode</div>
+                <div className="play-mode-desc">No hints or takebacks. Earn medals!</div>
+              </button>
+              <button
+                className="play-mode-button"
+                onClick={() => handlePlayModeSelect('friendly')}
+              >
+                <div className="play-mode-icon">🤝</div>
+                <div className="play-mode-name">Friendly Mode</div>
+                <div className="play-mode-desc">Unlimited hints and takebacks. No medals.</div>
+              </button>
             </div>
             <button className="back-button" onClick={handleBackStep}>
               ← Back
@@ -235,13 +275,18 @@ function ModeSelectionScreen({ onStartGame, onStartOnline, onBack }: ModeSelecti
 
             <div className="setup-summary">
               {!is2Player && (
-                <p>
-                  Playing as <strong>{selectedColor === 'white' ? 'White' : 'Black'}</strong> vs{' '}
-                  <strong>
-                    {selectedPersonalityBot ? selectedPersonalityBot.name : 
-                     classicDifficulties.find(d => d.difficulty === selectedDifficulty)?.name}
-                  </strong>
-                </p>
+                <>
+                  <p>
+                    Playing as <strong>{selectedColor === 'white' ? 'White' : 'Black'}</strong> vs{' '}
+                    <strong>
+                      {selectedPersonalityBot ? selectedPersonalityBot.name : 
+                       selectedEngineBot ? `${selectedEngineBot.elo} ELO` : 'Bot'}
+                    </strong>
+                  </p>
+                  <p>
+                    Mode: <strong>{selectedPlayMode === 'normal' ? 'Normal (Medals Enabled)' : 'Friendly (Practice)'}</strong>
+                  </p>
+                </>
               )}
               <p>
                 Time Control: <strong>{TIME_CONTROLS[selectedTimeControl].name}</strong>

@@ -4,6 +4,14 @@
   align-items: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #8b6914 0%, #5d4e37 100%);
+  position: relative;
+}
+
+.app-logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
 }
 
 .home-container {
@@ -38,6 +46,18 @@
 }
 
 .game-log-button {
+  background: rgba(139, 115, 85, 0.8);
+  color: #f5deb3;
+  padding: 15px 30px;
+  font-size: 1.3rem;
+  border-radius: 10px;
+  width: 100%;
+  border: 2px solid #d4a574;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.profile-button {
   background: rgba(139, 115, 85, 0.8);
   color: #f5deb3;
   padding: 15px 30px;
