@@ -26,7 +26,7 @@ function MainMenuScreen({
   onClubs,
   onBack 
 }: MainMenuScreenProps) {
-  const [profile, setProfile] = useState(getUserProfile())
+  const profile = getUserProfile()
   const [friendRequestCount, setFriendRequestCount] = useState(0)
   const [notificationCount, setNotificationCount] = useState(0)
 
