@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import HomeScreen from './components/HomeScreen'
+import WelcomeScreen from './components/WelcomeScreen'
+import MainMenuScreen from './components/MainMenuScreen'
 import ModeSelectionScreen from './components/ModeSelectionScreen'
 import GameScreen from './components/GameScreen'
 import GameLogScreen from './components/GameLogScreen'
 import OnlineSetupScreen from './components/OnlineSetupScreen'
 import OnlineLobbyScreen from './components/OnlineLobbyScreen'
 import ProfileScreen from './components/ProfileScreen'
+import ClubListScreen from './components/ClubListScreen'
+import ChatScreen from './components/ChatScreen'
+import RZTVScreen from './components/RZTVScreen'
 import { Screen, GameMode, Difficulty, TimeControlType, PersonalityBot, EngineBot, PlayMode } from './types'
 
 export interface GameConfig {
@@ -22,7 +27,7 @@ export interface GameConfig {
 }
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('home')
+  const [currentScreen, setCurrentScreen] = useState<Screen>('welcome')
   const [gameConfig, setGameConfig] = useState<GameConfig>({
     mode: 'single-player',
     difficulty: 'beginner',
@@ -38,6 +43,14 @@ function App() {
     setCurrentScreen('game')
   }
 
+  const goToWelcome = () => {
+    setCurrentScreen('welcome')
+  }
+
+  const goToMainMenu = () => {
+    setCurrentScreen('main-menu')
+  }
+
   const goToModeSelection = () => {
     setCurrentScreen('mode-selection')
   }
@@ -46,12 +59,20 @@ function App() {
     setCurrentScreen('game-log')
   }
 
-  const goToHome = () => {
-    setCurrentScreen('home')
-  }
-
   const goToProfile = () => {
     setCurrentScreen('profile')
+  }
+
+  const goToClubs = () => {
+    setCurrentScreen('clubs')
+  }
+
+  const goToChat = () => {
+    setCurrentScreen('chat')
+  }
+
+  const goToRZTV = () => {
+    setCurrentScreen('rztv')
   }
 
   const goToOnlineSetup = () => {
@@ -77,8 +98,42 @@ function App() {
     startGame(config)
   }
 
+  const handleViewClub = (clubId: string) => {
+    // TODO: Navigate to club detail screen
+    console.log('View club:', clubId)
+  }
+
+  const handleCreateClub = () => {
+    // TODO: Navigate to create club screen
+    console.log('Create club')
+  }
+
   return (
     <>
+      {currentScreen === 'welcome' && (
+        <WelcomeScreen onPlay={goToMainMenu} />
+      )}
+      {currentScreen === 'main-menu' && (
+        <MainMenuScreen
+          onPlayOnline={goToOnlineSetup}
+          onPlayLocally={() => {
+            // 2-player local mode
+            startGame({
+              mode: '2-player',
+              timeControl: 'normal',
+              playerColor: 'white',
+              playMode: 'friendly'
+            })
+          }}
+          onPlayBots={goToModeSelection}
+          onMatchHistory={goToGameLog}
+          onProfile={goToProfile}
+          onChat={goToChat}
+          onRZTV={goToRZTV}
+          onClubs={goToClubs}
+          onBack={goToWelcome}
+        />
+      )}
       {currentScreen === 'home' && (
         <HomeScreen 
           onPlay={goToModeSelection} 
@@ -90,13 +145,13 @@ function App() {
         <ModeSelectionScreen 
           onStartGame={startGame}
           onStartOnline={goToOnlineSetup}
-          onBack={goToHome} 
+          onBack={goToMainMenu} 
         />
       )}
       {currentScreen === 'online-setup' && (
         <OnlineSetupScreen
           onSetupComplete={handleOnlineSetupComplete}
-          onBack={goToModeSelection}
+          onBack={goToMainMenu}
         />
       )}
       {currentScreen === 'online-lobby' && (
@@ -104,21 +159,34 @@ function App() {
           username={onlineUsername}
           avatar={onlineAvatar}
           onGameStart={handleOnlineGameStart}
-          onBack={goToModeSelection}
+          onBack={goToMainMenu}
         />
       )}
       {currentScreen === 'game' && (
         <GameScreen 
           config={gameConfig}
-          onBack={goToHome}
+          onBack={goToMainMenu}
           onViewGameLog={goToGameLog}
         />
       )}
       {currentScreen === 'game-log' && (
-        <GameLogScreen onBack={goToHome} />
+        <GameLogScreen onBack={goToMainMenu} />
       )}
       {currentScreen === 'profile' && (
-        <ProfileScreen onBack={goToHome} />
+        <ProfileScreen onBack={goToMainMenu} />
+      )}
+      {currentScreen === 'clubs' && (
+        <ClubListScreen
+          onViewClub={handleViewClub}
+          onCreateClub={handleCreateClub}
+          onBack={goToMainMenu}
+        />
+      )}
+      {currentScreen === 'chat' && (
+        <ChatScreen onBack={goToMainMenu} />
+      )}
+      {currentScreen === 'rztv' && (
+        <RZTVScreen onBack={goToMainMenu} />
       )}
     </>
   )
