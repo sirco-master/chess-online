@@ -3,18 +3,15 @@
 A complete, deployable web-based chess game featuring:
 - **Single-player** against AI (Stockfish) with 10 difficulty levels or 6 personality bots
 - **Local 2-player mode** 
+- **Online multiplayer** with real-time WebSocket gameplay
 - **Time controls** (Normal, Rapid, Blitz, Bullet)
 - **Game analysis** with move quality evaluation
 - **Game history** tracking
+- **In-game chat** for online matches
 - **Click-to-move** and drag-and-drop support
 - **Mobile-optimized** responsive design
 
 ## Features
-
-### Three Screens
-- **Home screen** with Play button, Game History, and Settings menu
-- **Mode/Bot selection** with personality bots and classic difficulties
-- **Game screen** with wooden theme, chess clocks, and analysis tools
 
 ### Game Modes
 
@@ -41,6 +38,30 @@ A complete, deployable web-based chess game featuring:
 - Local pass-and-play
 - No hints or undo
 - Board auto-flips for each player
+
+#### Online Multiplayer Mode 🌐 NEW!
+- **Public Matchmaking**: Quick match with random opponent
+  - Automatic pairing from matchmaking queue
+  - Random color assignment
+  - Default Blitz time control (3+2)
+  
+- **Private Lobbies**: Play with friends
+  - Host generates 5-digit code
+  - Friends join using the code
+  - Choose time control before creating
+  - Host plays as white
+
+- **Real-time Features**:
+  - WebSocket-based move synchronization
+  - In-game chat with opponent
+  - Live chess clocks
+  - Disconnect/reconnect handling
+  - Opponent resignation notification
+
+- **Setup**:
+  - Choose username (2-20 characters)
+  - Select avatar from 15 emoji options
+  - Settings saved in localStorage
 
 ### Time Controls
 Choose from four time control options before each game:
@@ -87,8 +108,9 @@ Time runs during your turn with increment added after each move.
 - **Chess Engine**: Stockfish.js (browser-based web worker)
 - **Chess Logic**: chess.js
 - **Chess UI**: react-chessboard
-- **Backend**: Express.js (serves static files)
-- **Storage**: localStorage (for game history, settings, analysis cooldown)
+- **Backend**: Express.js + Socket.io (WebSocket server)
+- **Real-time Communication**: Socket.io (WebSocket)
+- **Storage**: localStorage (for game history, settings, analysis cooldown, online username)
 
 ## Local Development
 
@@ -176,6 +198,16 @@ Your chess game will be available at: `https://your-app-name.onrender.com`
 - **New Game** (🔄): Start a fresh game
 - **History** (📊): View game history  
 - **Back**: Return to main menu
+
+### Online Multiplayer Mode
+- **Move**: Drag and drop pieces OR click to move (only on your turn)
+- **Chat** (💬): Send messages to opponent
+- **New Game** (🔄): Start a fresh game
+- **History** (📊): View game history
+- **Back**: Return to main menu
+- Real-time synchronization with opponent
+- Chess clocks with time controls
+- Resign option available
 
 ## Bot Difficulty Levels
 
