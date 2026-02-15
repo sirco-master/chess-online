@@ -1,28 +1,85 @@
 # Chess Online
 
-A complete, deployable web-based chess game featuring single-player mode against AI (Stockfish) with 10 difficulty levels and local 2-player mode.
+A complete, deployable web-based chess game featuring:
+- **Single-player** against AI (Stockfish) with 10 difficulty levels or 6 personality bots
+- **Local 2-player mode** 
+- **Time controls** (Normal, Rapid, Blitz, Bullet)
+- **Game analysis** with move quality evaluation
+- **Game history** tracking
+- **Click-to-move** and drag-and-drop support
+- **Mobile-optimized** responsive design
 
 ## Features
 
-- **Three Screens**:
-  - Home screen with Play button and Settings menu (SFX toggle)
-  - Mode/Difficulty selection with 10 bot difficulties (150-3000 ELO) + 2-player mode
-  - Game screen with wooden theme
+### Three Screens
+- **Home screen** with Play button, Game History, and Settings menu
+- **Mode/Bot selection** with personality bots and classic difficulties
+- **Game screen** with wooden theme, chess clocks, and analysis tools
 
-- **Single-Player Mode**: 
-  - Play against Stockfish AI with 10 difficulty levels
-  - Hint button (3 uses per game) - shows best move
-  - Undo button (5 uses per game) - reverts moves
-  
-- **2-Player Mode**: 
-  - Local pass-and-play
-  - No hints or undo
+### Game Modes
+
+#### Single-Player Mode (vs AI)
+- **Personality Bots**: Choose from 6 unique opponents with distinct playing styles:
+  - 👩 **Amelia** - Aggressive Attacker (Intermediate)
+  - 👨 **Boris** - Solid Positional (Moderate) 
+  - 🧔 **Avi** - Endgame Specialist (Tough)
+  - 👩‍🦰 **Elena** - Creative Genius (Hard)
+  - 🤴 **Magnus** - Universal Player (Extreme)
+  - 👸 **Sophia** - Strategic Planner (Insane)
+
+- **Classic Difficulty**: Traditional ELO-based opponents (150-3000 ELO)
+  - Practice (150), Beginner (300), Easy (500), Intermediate (800)
+  - Moderate (1200), Tough (1500), Hard (1800), Insane (2100)
+  - Extreme (2500), Impossible (3000)
 
 - **Features**:
-  - Wooden theme throughout
-  - Sound effects with persistent toggle (localStorage)
-  - Responsive design
-  - Full chess rules via chess.js
+  - Choose your color (white or black)
+  - Hint button (3 uses per game) - shows best move
+  - Undo button (5 uses per game) - reverts last two moves
+  
+#### 2-Player Mode
+- Local pass-and-play
+- No hints or undo
+- Board auto-flips for each player
+
+### Time Controls
+Choose from four time control options before each game:
+- **Normal** - No clock, unlimited time
+- **Rapid** - 10 minutes + 5 seconds increment
+- **Blitz** - 3 minutes + 2 seconds increment  
+- **Bullet** - 1 minute + 1 second increment
+
+Time runs during your turn with increment added after each move.
+
+### Post-Game Features
+
+#### Game Analysis
+- Analyze your games with Stockfish (once per 24 hours)
+- Move quality labels: [Best], [Great], [Good], [Inaccuracy], [Mistake], [Blunder]
+- Accuracy scores for both players
+- Detailed move-by-move breakdown
+
+#### Game History
+- Tracks last 10 games with details:
+  - Opponent name
+  - Result (win/loss/draw)
+  - Your color
+  - Time control
+  - Move count
+  - Timestamp
+- Summary format: "You beat Boris bot in Blitz!"
+
+### UI/UX Features
+- **Move Options**: 
+  - Drag-and-drop pieces (traditional)
+  - Click-to-move: Click piece, then destination (with green dots showing valid moves)
+- **Settings**:
+  - Sound effects toggle
+  - Click-to-move toggle
+  - Show move hints (green dots) toggle
+- **Post-game modals**: Styled victory/defeat/draw notifications
+- **Responsive design**: Optimized for mobile and desktop
+- **Touch-friendly**: Large buttons and controls for mobile devices
 
 ## Tech Stack
 
@@ -31,6 +88,7 @@ A complete, deployable web-based chess game featuring single-player mode against
 - **Chess Logic**: chess.js
 - **Chess UI**: react-chessboard
 - **Backend**: Express.js (serves static files)
+- **Storage**: localStorage (for game history, settings, analysis cooldown)
 
 ## Local Development
 
@@ -105,18 +163,33 @@ Your chess game will be available at: `https://your-app-name.onrender.com`
 ## Game Controls
 
 ### Single-Player Mode
-- **Move**: Drag and drop pieces
+- **Move**: Drag and drop pieces OR click piece then click destination
 - **Hint** (💡): Shows best move (3 uses per game)
 - **Undo** (↶): Reverts last move pair (5 uses per game)
 - **New Game** (🔄): Start a fresh game
+- **History** (📊): View game history
 - **Back**: Return to main menu
+- **Analyze** (🔍): Analyze game after completion (once per 24 hours)
 
 ### 2-Player Mode
-- **Move**: Drag and drop pieces (players alternate)
+- **Move**: Drag and drop pieces OR click to move (players alternate)
 - **New Game** (🔄): Start a fresh game
+- **History** (📊): View game history  
 - **Back**: Return to main menu
 
 ## Bot Difficulty Levels
+
+### Personality Bots
+| Bot | Style | Difficulty | Description |
+|-----|-------|------------|-------------|
+| Amelia | Aggressive Attacker | Intermediate (800) | Loves tactical fireworks and sacrificial attacks |
+| Boris | Solid Positional | Moderate (1200) | Patient and methodical, focuses on structure |
+| Avi | Endgame Specialist | Tough (1500) | Trades pieces to reach endgames |
+| Elena | Creative Genius | Hard (1800) | Unpredictable with unusual openings |
+| Magnus | Universal Player | Extreme (2500) | Adaptable and strong in all phases |
+| Sophia | Strategic Planner | Insane (2100) | Thinks many moves ahead |
+
+### Classic Difficulty
 
 | Difficulty | ELO | Description |
 |------------|-----|-------------|
