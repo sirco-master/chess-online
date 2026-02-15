@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Chess World",
+    "slug": "chess-world",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./public/chess-icon.svg",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./public/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#667eea"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rzplay.chessworld",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./public/chess-icon.svg",
+        "backgroundColor": "#667eea"
+      },
+      "package": "com.rzplay.chessworld",
+      "versionCode": 1
+    },
+    "web": {
+      "favicon": "./public/chess-icon.svg",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          },
+          "ios": {
+            "deploymentTarget": "13.0"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "chess-world-rzplay"
+      }
+    }
+  }
+}

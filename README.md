@@ -1,67 +1,83 @@
-# Chess Online
+# Chess World 🌍♟️
 
-A complete, deployable web-based chess game featuring:
-- **Single-player** against AI (Stockfish) with 10 difficulty levels or 6 personality bots
-- **Local 2-player mode** 
-- **Online multiplayer** with real-time WebSocket gameplay
-- **Time controls** (Normal, Rapid, Blitz, Bullet)
-- **Game analysis** with move quality evaluation
-- **Game history** tracking
-- **In-game chat** for online matches
-- **Click-to-move** and drag-and-drop support
-- **Mobile-optimized** responsive design
+A complete, modern web-based chess game featuring:
+- **50 Unique Bots** - 36 personality bots + 14 engine difficulty levels
+- **Online Multiplayer** - Real-time WebSocket gameplay
+- **Social Features** - Clubs, friends, DM system (in development)
+- **Multiple Game Modes** - Single-player, 2-player local, online play
+- **Time Controls** - Normal, Rapid, Blitz, Bullet
+- **Game Analysis** - Move quality evaluation with Stockfish
+- **Profile System** - Track ELO, medals, and achievements
+- **Mobile-Ready** - Responsive design with smooth animations
+- **App-Store Ready** - Expo/React Native configuration included
 
-## Features
+## 🎮 Game Modes
 
-### Game Modes
+### Play Bots
+Challenge AI opponents with unique personalities and difficulty levels:
+- **36 Personality Bots** across 6 categories (Beginner to RzPlay Staff)
+- **14 Engine Levels** with precise ELO ratings (150-3200+)
+- **Normal Mode** - Earn medals, no hints/takebacks
+- **Friendly Mode** - Unlimited hints/takebacks, practice freely
 
-#### Single-Player Mode (vs AI)
-- **Personality Bots**: Choose from 6 unique opponents with distinct playing styles:
-  - 👩 **Amelia** - Aggressive Attacker (Intermediate)
-  - 👨 **Boris** - Solid Positional (Moderate) 
-  - 🧔 **Avi** - Endgame Specialist (Tough)
-  - 👩‍🦰 **Elena** - Creative Genius (Hard)
-  - 🤴 **Magnus** - Universal Player (Extreme)
-  - 👸 **Sophia** - Strategic Planner (Insane)
+### Play Online 🌐
+- **Quick Match** - Automatic matchmaking with random opponents
+- **Private Lobbies** - 5-digit codes to play with friends
+- **Real-time Sync** - WebSocket-based move synchronization
+- **In-game Chat** - Communicate with opponents
+- **Time Controls** - Choose your preferred pace
 
-- **Classic Difficulty**: Traditional ELO-based opponents (150-3000 ELO)
-  - Practice (150), Beginner (300), Easy (500), Intermediate (800)
-  - Moderate (1200), Tough (1500), Hard (1800), Insane (2100)
-  - Extreme (2500), Impossible (3000)
+### Play Locally
+- **2-Player Mode** - Pass-and-play on same device
+- **Auto-flip Board** - Board rotates for each player
+- **Friendly Mode** - Relaxed practice games
 
-- **Features**:
-  - Choose your color (white or black)
-  - Hint button (3 uses per game) - shows best move
-  - Undo button (5 uses per game) - reverts last two moves
-  
-#### 2-Player Mode
-- Local pass-and-play
-- No hints or undo
-- Board auto-flips for each player
+## 🏆 Social Features (New!)
 
-#### Online Multiplayer Mode 🌐 NEW!
-- **Public Matchmaking**: Quick match with random opponent
-  - Automatic pairing from matchmaking queue
-  - Random color assignment
-  - Default Blitz time control (3+2)
-  
-- **Private Lobbies**: Play with friends
-  - Host generates 5-digit code
-  - Friends join using the code
-  - Choose time control before creating
-  - Host plays as white
+### Clubs
+- **Create or Join Clubs** - Up to 30 members per club
+- **Club Roles** - President, Senior, Member with customizable permissions
+- **Club Matches** - 5v5, 10v10, 20v20, 30v30 team battles
+- **Trophy System** - Winners +10, losers -5 trophies
+- **Visibility Settings** - Open, Invite-Only, or Closed clubs
+- **Club Management** - Promote/demote members, manage permissions
 
-- **Real-time Features**:
-  - WebSocket-based move synchronization
-  - In-game chat with opponent
-  - Live chess clocks
-  - Disconnect/reconnect handling
-  - Opponent resignation notification
+### Friends & Messaging (Coming Soon)
+- **Friend System** - Send and accept friend requests
+- **Direct Messages** - Private 1-on-1 conversations
+- **User Search** - Find players by username
+- **Profile Viewing** - View other players' stats and achievements
+- **Blocking** - Prevent unwanted contact
+- **DM Settings** - Control who can message you
 
-- **Setup**:
-  - Choose username (2-20 characters)
-  - Select avatar from 15 emoji options
-  - Settings saved in localStorage
+### RZTV (Coming Soon)
+- **Live Streaming** - Watch top players in action
+- **Tournament Broadcasts** - Follow competitive events
+- **Educational Content** - Learn from the pros
+- **VOD Library** - Replay memorable games
+
+## 🎨 User Interface
+
+### Modern, Animated Design
+- **Welcome Screen** - Centered play button with gradient background
+- **Main Menu** - Vertical navigation with smooth transitions
+- **Settings Gear** - Persistent settings access (top-right)
+- **Mobile-Optimized** - Touch-friendly with responsive layouts
+- **Smooth Animations** - CSS-based transitions and effects
+
+### Navigation Flow
+```
+Welcome Screen → Main Menu → Specific Features
+     ↓              ↓
+   Play         Play Online
+                Play Locally
+                Play Bots
+                Clubs
+                Match History
+                Profile
+                Chat
+                RZTV
+```
 
 ### Time Controls
 Choose from four time control options before each game:
@@ -102,7 +118,23 @@ Time runs during your turn with increment added after each move.
 - **Responsive design**: Optimized for mobile and desktop
 - **Touch-friendly**: Large buttons and controls for mobile devices
 
-## Tech Stack
+## 📱 Mobile & App Deployment
+
+Chess World is ready for mobile deployment! See [MOBILE_DEPLOYMENT.md](./MOBILE_DEPLOYMENT.md) for detailed instructions.
+
+### Deployment Options:
+1. **Progressive Web App (PWA)** - Install directly from browser
+2. **Native App with Expo** - Deploy to iOS App Store and Google Play
+3. **Hybrid App with Capacitor** - Alternative native wrapper
+
+### Mobile Features:
+- **Touch-Optimized** - All interactions work smoothly on mobile
+- **Responsive Design** - Adapts to any screen size
+- **Smooth Animations** - GPU-accelerated CSS transitions
+- **Offline Support** - Play bots without internet
+- **App-Store Ready** - Configuration files included
+
+## 🛠️ Tech Stack
 
 - **Frontend**: React + TypeScript + Vite
 - **Chess Engine**: Stockfish.js (browser-based web worker)
@@ -110,9 +142,10 @@ Time runs during your turn with increment added after each move.
 - **Chess UI**: react-chessboard
 - **Backend**: Express.js + Socket.io (WebSocket server)
 - **Real-time Communication**: Socket.io (WebSocket)
-- **Storage**: localStorage (for game history, settings, analysis cooldown, online username)
+- **Storage**: localStorage (for game history, settings, profiles, clubs)
+- **Mobile**: Expo/React Native ready
 
-## Local Development
+## 🚀 Local Development
 
 ### Prerequisites
 - Node.js 16+ and npm
@@ -236,7 +269,7 @@ Your chess game will be available at: `https://your-app-name.onrender.com`
 | Extreme | 2500 | Grandmaster level |
 | Impossible | 3000 | Maximum strength |
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 chess-online/
@@ -246,16 +279,35 @@ chess-online/
 │   └── chess-icon.svg  # Favicon
 ├── src/
 │   ├── components/     # React components
-│   │   ├── HomeScreen.tsx
+│   │   ├── WelcomeScreen.tsx      # Landing screen
+│   │   ├── MainMenuScreen.tsx     # Main navigation
+│   │   ├── HomeScreen.tsx         # Legacy home (kept for compatibility)
 │   │   ├── ModeSelectionScreen.tsx
-│   │   └── GameScreen.tsx
+│   │   ├── GameScreen.tsx
+│   │   ├── ProfileScreen.tsx
+│   │   ├── ClubListScreen.tsx     # Club browser
+│   │   ├── ChatScreen.tsx         # Friends & DM (placeholder)
+│   │   ├── RZTVScreen.tsx         # Streaming (placeholder)
+│   │   ├── GameLogScreen.tsx
+│   │   ├── OnlineSetupScreen.tsx
+│   │   └── OnlineLobbyScreen.tsx
 │   ├── utils/
-│   │   └── stockfish.ts # Stockfish integration
-│   ├── App.tsx         # Main app component
+│   │   ├── stockfish.ts           # Stockfish integration
+│   │   ├── gameStorage.ts         # Game data & profiles
+│   │   ├── clubStorage.ts         # Club management
+│   │   ├── friendsStorage.ts      # Friends & DM system
+│   │   ├── websocket.ts           # WebSocket client
+│   │   └── useOnlineGame.ts       # Online game hook
+│   ├── App.tsx         # Main app component & routing
 │   ├── main.tsx        # Entry point
+│   ├── types.ts        # TypeScript definitions
 │   └── index.css       # Global styles
 ├── server/
-│   └── index.js        # Express server
+│   ├── index.js        # Express server
+│   └── gameServer.js   # WebSocket game logic
+├── app.json            # Expo configuration
+├── metro.config.js     # Metro bundler config
+├── MOBILE_DEPLOYMENT.md # Mobile deployment guide
 ├── index.html          # HTML template
 ├── package.json        # Dependencies
 ├── vite.config.ts      # Vite configuration
@@ -263,23 +315,49 @@ chess-online/
 └── render.yaml         # Render deployment config
 ```
 
-## Troubleshooting
+## 🎯 Roadmap & TODOs
 
-### Stockfish not working
-- Ensure browser supports Web Workers
-- Check browser console for errors
-- Try a different browser (Chrome, Firefox, Edge recommended)
+### In Progress
+- Club detail screens (view members, manage club)
+- Club match system (team battles)
+- User search functionality
+- Friend request system
+- Direct messaging implementation
+- Profile viewing (other users)
+- Blocking system integration
 
-### Build fails
-- Ensure Node.js 16+ is installed
-- Delete `node_modules` and `package-lock.json`, then run `npm install` again
-- Check for TypeScript errors: `npm run build`
+### Planned Features
+- RZTV live streaming
+- Tournament system
+- Leaderboards
+- Achievement badges
+- Push notifications (mobile)
+- Voice chat (online matches)
+- Puzzle mode
+- Opening explorer
+- Game database
+- Export games as PGN
 
-### Sound not playing
-- Check SFX toggle in Settings
-- Ensure browser allows audio playback
-- Some browsers require user interaction before playing audio
+## 🤝 Contributing
 
-## License
+Contributions are welcome! Areas that need work:
+1. Complete club management features
+2. Implement full friends/DM system
+3. Add RZTV functionality
+4. Improve mobile UX
+5. Add more personality bots
+6. Enhance game analysis
+7. Add puzzle mode
+8. Implement tournaments
+
+## 📄 License
 
 MIT
+
+## 🙏 Acknowledgments
+
+- Stockfish chess engine
+- chess.js for move validation
+- react-chessboard for the board UI
+- Socket.io for real-time communication
+- The open-source chess community
