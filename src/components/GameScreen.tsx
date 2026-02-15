@@ -17,6 +17,12 @@ interface GameScreenProps {
 }
 
 // Map ELO to Stockfish difficulty configuration
+// Strategy: Progressive scaling of skill, depth, and move time based on ELO ranges
+// - Skill: Stockfish's skill level (0-20), higher = stronger play
+// - Depth: Search depth in half-moves, affects tactical accuracy
+// - MoveTime: Time allocated per move in ms, allows more calculation
+// ELO ranges roughly correspond to: Beginner (150-600), Intermediate (600-1200),
+// Advanced (1200-2000), Expert (2000-2800), Master (2800+)
 function getDifficultyConfigForElo(elo: number): StockfishConfig {
   if (elo <= 200) return { skill: 0, depth: 1, moveTime: 100 }
   if (elo <= 400) return { skill: 1, depth: 2, moveTime: 200 }
