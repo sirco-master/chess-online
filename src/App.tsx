@@ -2,26 +2,37 @@ import { useState } from 'react'
 import HomeScreen from './components/HomeScreen'
 import ModeSelectionScreen from './components/ModeSelectionScreen'
 import GameScreen from './components/GameScreen'
+import GameLogScreen from './components/GameLogScreen'
+import { Screen, GameMode, Difficulty, TimeControlType, PersonalityBot } from './types'
 
-export type Screen = 'home' | 'mode-selection' | 'game'
-export type GameMode = 'single-player' | '2-player'
-export type Difficulty = 'practice' | 'beginner' | 'easy' | 'intermediate' | 'moderate' | 'tough' | 'hard' | 'insane' | 'extreme' | 'impossible'
+export interface GameConfig {
+  mode: GameMode
+  difficulty?: Difficulty
+  personalityBot?: PersonalityBot
+  timeControl: TimeControlType
+  playerColor: 'white' | 'black'
+}
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home')
-  const [gameMode, setGameMode] = useState<GameMode>('single-player')
-  const [difficulty, setDifficulty] = useState<Difficulty>('beginner')
+  const [gameConfig, setGameConfig] = useState<GameConfig>({
+    mode: 'single-player',
+    difficulty: 'beginner',
+    timeControl: 'normal',
+    playerColor: 'white'
+  })
 
-  const startGame = (mode: GameMode, diff?: Difficulty) => {
-    setGameMode(mode)
-    if (diff) {
-      setDifficulty(diff)
-    }
+  const startGame = (config: GameConfig) => {
+    setGameConfig(config)
     setCurrentScreen('game')
   }
 
   const goToModeSelection = () => {
     setCurrentScreen('mode-selection')
+  }
+
+  const goToGameLog = () => {
+    setCurrentScreen('game-log')
   }
 
   const goToHome = () => {
@@ -30,12 +41,27 @@ function App() {
 
   return (
     <>
-      {currentScreen === 'home' && <HomeScreen onPlay={goToModeSelection} />}
+      {currentScreen === 'home' && (
+        <HomeScreen 
+          onPlay={goToModeSelection} 
+          onViewGameLog={goToGameLog}
+        />
+      )}
       {currentScreen === 'mode-selection' && (
-        <ModeSelectionScreen onSelectMode={startGame} onBack={goToHome} />
+        <ModeSelectionScreen 
+          onStartGame={startGame} 
+          onBack={goToHome} 
+        />
       )}
       {currentScreen === 'game' && (
-        <GameScreen mode={gameMode} difficulty={difficulty} onBack={goToHome} />
+        <GameScreen 
+          config={gameConfig}
+          onBack={goToHome}
+          onViewGameLog={goToGameLog}
+        />
+      )}
+      {currentScreen === 'game-log' && (
+        <GameLogScreen onBack={goToHome} />
       )}
     </>
   )

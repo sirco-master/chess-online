@@ -30,11 +30,23 @@
   font-size: 1.8rem;
   font-weight: bold;
   border-radius: 12px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   display: block;
   width: 100%;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   border: 3px solid #8b7355;
+}
+
+.game-log-button {
+  background: rgba(139, 115, 85, 0.8);
+  color: #f5deb3;
+  padding: 15px 30px;
+  font-size: 1.3rem;
+  border-radius: 10px;
+  width: 100%;
+  border: 2px solid #d4a574;
+  margin-bottom: 15px;
+  font-weight: 600;
 }
 
 .settings-button {
